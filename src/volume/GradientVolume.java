@@ -78,6 +78,7 @@ public class GradientVolume {
         int y = (int) Math.floor(coord[1]);
         int z = (int) Math.floor(coord[2]);
 
+        // tri-linear interpolation process
             if  (x<=(dimX-2)&& y<=(dimY-2) && z<=(dimZ-2)){
             VoxelGradient result_z1=new VoxelGradient();
             VoxelGradient result_z2=new VoxelGradient();

@@ -276,7 +276,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         double[] current_point = new double[3];
         short max_intensity = 0;
         short current_intensity = 0;
-        if (this.interactiveMode){
+        // aim to speed up the rotating experience
+        if (this.interactiveMode){ 
                 sampleStep = sampleStep*5;
         }
 
@@ -284,23 +285,23 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         VectorMath.setVector(entry_exit_vector, exitPoint[0]-entryPoint[0], exitPoint[1]-entryPoint[1], exitPoint[2]-entryPoint[2]);
         for (double current_dis = 0; current_dis < total_dis; current_dis += sampleStep){
             for(int i = 0; i<3; i++){
-                //current_point[i] = (1 - current_dis/total_dis) * entryPoint[i] + current_dis/total_dis * exitPoint[i];
-                current_point[i] = (current_dis/total_dis)*entry_exit_vector[i]+entryPoint[i];
+                current_point[i] = (current_dis/total_dis)*entry_exit_vector[i]+entryPoint[i]; // caculated the current point
             }
             int floorx = (int)Math.floor(current_point[0]);
             int floory = (int)Math.floor(current_point[1]);
             int floorz = (int)Math.floor(current_point[2]);
             if (this.interactiveMode){
+            	// speed up the rotating experience, if rotating the object, just compute the nearest int floor pixel
                 current_intensity = volume.getVoxel(floorx,floory,floorz);
 
             } else {
                 current_intensity = volume.getVoxelInterpolate(current_point);
             }
-            //current_intensity = volume.getVoxelInterpolate(current_point);
+
             max_intensity = current_intensity > max_intensity ? current_intensity : max_intensity;
             
         }
-        current_intensity = volume.getVoxelInterpolate(exitPoint);
+        current_intensity = volume.getVoxelInterpolate(exitPoint); // compute the exit point's intensity and compared to the max intensity
         max_intensity = current_intensity > max_intensity ? current_intensity : max_intensity;
     
         int color=0;
@@ -471,7 +472,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             aug_color.g = basic_color.g *alpha + (1-alpha)*aug_color.g;  // 1. the basic color multiplied by its opacity just at the point(alpha); 
             aug_color.b = basic_color.b * alpha + (1-alpha)*aug_color.b;  // 2. former color transmitted through the point (1-alpha)
         }
-        current_intensity = volume.getVoxelInterpolate(entryPoint);
+        current_intensity = volume.getVoxelInterpolate(entryPoint); // compute the entry point's intensity and compared to the max intensity
         basic_color = tFunc.getColor(current_intensity);
         float alpha = (float) (1 - Math.pow(1-basic_color.a, sampleStep));
         aug_color.r = basic_color.r * alpha +(1-alpha)*aug_color.r;
@@ -486,6 +487,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
     /**
      * Front-to-back compositing 
+     * similar to B2F
      */
     private int traceRayCompositingF2B(double[] entryPoint, double[]exitPoint, double[] viewVec,double sampleStep){
         double total_dis = VectorMath.distance(entryPoint, exitPoint);
@@ -514,7 +516,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             int floorx = (int)Math.floor(current_point[0]);
             int floory = (int)Math.floor(current_point[1]);
             int floorz = (int)Math.floor(current_point[2]);
-            //current_intensity = volume.getVoxelInterpolate(current_point);
+
             if (this.interactiveMode){
                 current_intensity = volume.getVoxel(floorx,floory,floorz);
 
@@ -586,6 +588,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             VectorMath.setVector(L,1.0/3.0,2.0/3.0,2.0/3.0); // set the Light vector
 
             //users can choose the shading mode separately
+            //compute the Ambient part
             if(AmbMode == false){ k_a = 0.0;} else {k_a =0.1;}
             if(DifMode == false){ k_d = 0.0;} else {k_d =0.7;}
             if(SpecMode == false){ k_s = 0.0;} else {k_s =0.2;}
@@ -593,12 +596,14 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             Amb_color.r=  b_color.r * k_a;
             Amb_color.g=  b_color.g * k_a;
             Amb_color.b=  b_color.b * k_a;
-            
+
+            //compute the Difussion part
             double cosd=Math.abs(VectorMath.dotproduct(Id, L));
             Dif_color.r=  b_color.r * k_d * cosd;
             Dif_color.g=  b_color.g * k_d * cosd;
             Dif_color.b=  b_color.b * k_d * cosd;
             
+            //compute the Specular part
             R[0]=cosd*Id[0]*2-L[0];
             R[1]=cosd*Id[1]*2-L[1];
             R[2]=cosd*Id[2]*2-L[2];
@@ -640,6 +645,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         set_color.g=tfEditor2D.triangleWidget.color.g;
         set_color.b=tfEditor2D.triangleWidget.color.b;
         VoxelGradient current_gradients=new VoxelGradient();
+        // set the max and min gradient boundary, opacity of the pixel outside this boundary will be set to 0
         double graMax = tfEditor2D.triangleWidget.graMax;
         double graMin = tfEditor2D.triangleWidget.graMin;
         VectorMath.setVector(entry_exit_vector, exitPoint[0]-entryPoint[0], exitPoint[1]-entryPoint[1], exitPoint[2]-entryPoint[2]);
@@ -660,9 +666,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             } else {
                 current_intensity = volume.getVoxelInterpolate(current_point);
             }
-            //current_intensity = volume.getVoxelInterpolate(current_point);
-            current_gradients= gradients.getGradient(current_point);                  
-                
+
+            current_gradients= gradients.getGradient(current_point);
+
+            // Levoy's equation
             if (current_gradients.mag==0&&current_intensity==fv){
                 basic_color.a = 1;
             } else if (current_gradients.mag>0 && current_intensity-r*current_gradients.mag<=fv && current_intensity+r*current_gradients.mag>=fv){
@@ -671,6 +678,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 basic_color.a=0;
             }
 
+            //opacity of the pixel outside the max and min gradient boundary will be set to 0
             if (current_gradients.mag>graMax || current_gradients.mag<graMin){
                 basic_color.a = 0;
             }
