@@ -1,4 +1,4 @@
-/*
+   /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -26,8 +26,11 @@ public class TransferFunction2DView extends javax.swing.JPanel {
     private final int DOTSIZE = 8;
     public Ellipse2D.Double baseControlPoint, radiusControlPoint;
     boolean selectedBaseControlPoint, selectedRadiusControlPoint;
+    private double maxHistoMagnitude;
     
     
+    public Ellipse2D.Double Min_Control, Max_Control;
+    boolean Low, High;
     /**
      * Creates new form TransferFunction2DView
      * @param ed
@@ -36,6 +39,9 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         initComponents();
         
         this.ed = ed;
+
+        Low = false;
+        High = false;
         selectedBaseControlPoint = false;
         selectedRadiusControlPoint = false;
         addMouseMotionListener(new TriangleWidgetHandler());
@@ -61,7 +67,6 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         double binHeight = (double) h / (double) ed.ybins;
         maxHistoMagnitude = Math.log(maxHistoMagnitude);
         
-        
         for (int y = 0; y < ed.ybins; y++) {
             for (int x = 0; x < ed.xbins; x++) {
                 if (ed.histogram[y * ed.xbins + x] > 0) {
@@ -81,14 +86,31 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         g2.drawLine(xpos, ypos, xpos + (int) (ed.triangleWidget.radius * binWidth * ed.maxGradientMagnitude), 0);
         radiusControlPoint = new Ellipse2D.Double(xpos + (ed.triangleWidget.radius * binWidth * ed.maxGradientMagnitude) - DOTSIZE / 2,  0, DOTSIZE, DOTSIZE);
         g2.fill(radiusControlPoint);
+        
+        int Min_Y_Pos = h - (int) (ed.triangleWidget.graMin / ed.maxGradientMagnitude * ed.ybins * binHeight);
+        int Max_Y_Pos = h - (int) (ed.triangleWidget.graMax / ed.maxGradientMagnitude * ed.ybins * binHeight);
+        int Min_LX_Pos = xpos - (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.graMin);
+        int Max_LX_Pos = xpos - (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.graMax);
+        int Min_RX_Pos = xpos + (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.graMin);
+        int Max_RX_Pos = xpos + (int) (ed.triangleWidget.radius * binWidth * ed.triangleWidget.graMax);
+        Min_Control = new Ellipse2D.Double(Min_Y_Pos >= h - DOTSIZE ? xpos - 10 - DOTSIZE / 2 : xpos - DOTSIZE / 2, Min_Y_Pos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
+        Max_Control = new Ellipse2D.Double(xpos - DOTSIZE / 2, Max_Y_Pos - DOTSIZE / 2, DOTSIZE, DOTSIZE);
+        
+        g2.setColor(Color.red);
+        
+        g2.fill(Min_Control);
+        g2.fill(Max_Control);
+        
+        g2.drawLine(Min_LX_Pos, Min_Y_Pos, Min_RX_Pos, Min_Y_Pos);// minGrad line
+        g2.drawLine(Max_LX_Pos, Max_Y_Pos, Max_RX_Pos, Max_Y_Pos); // maxGrad line
     }
     
     
     private class TriangleWidgetHandler extends MouseMotionAdapter {
-
+        
         @Override
         public void mouseMoved(MouseEvent e) {
-            if (baseControlPoint.contains(e.getPoint()) || radiusControlPoint.contains(e.getPoint())) {
+            if (baseControlPoint.contains(e.getPoint()) || radiusControlPoint.contains(e.getPoint())|| Min_Control.contains(e.getPoint()) || Max_Control.contains(e.getPoint())) {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             } else {
                 setCursor(Cursor.getDefaultCursor());
@@ -97,7 +119,12 @@ public class TransferFunction2DView extends javax.swing.JPanel {
         
         @Override
         public void mouseDragged(MouseEvent e) {
-            if (selectedBaseControlPoint || selectedRadiusControlPoint) {
+            double w = getWidth();
+            double h = getHeight();
+            double binWidth = (double) w / (double) ed.xbins;
+            double binHeight = (double) h / ed.ybins;
+            
+            if (selectedBaseControlPoint || selectedRadiusControlPoint || Low || High) {
                 Point dragEnd = e.getPoint();
                 
                 if (selectedBaseControlPoint) {
@@ -109,20 +136,63 @@ public class TransferFunction2DView extends javax.swing.JPanel {
                     if (dragEnd.x - baseControlPoint.getCenterX() <= 0) {
                         dragEnd.x = (int) (baseControlPoint.getCenterX() + 1);
                     }
+                }else if(Low) {
+                    // avoid out of Y range
+                    if(dragEnd.y > h) {
+                         dragEnd.y = (int)h;
+                    }
+                    if(dragEnd.y < 0) {
+                         dragEnd.y = 0;
+                    }
+                    dragEnd.setLocation(Min_Control.getCenterX(), dragEnd.y);
                 }
+                else if(High) {
+                    // restrain to vertical movement and avoid out of range
+                    if(dragEnd.y > h) {
+                         dragEnd.y = (int)h;
+                    }
+                    if(dragEnd.y < 0) {
+                         dragEnd.y = 0;
+                    }
+                    dragEnd.setLocation(Max_Control.getCenterX(), dragEnd.y);
+                }
+                
+                 // avoid out of Xrange
                 if (dragEnd.x < 0) {
                     dragEnd.x = 0;
                 }
                 if (dragEnd.x >= getWidth()) {
                     dragEnd.x = getWidth() - 1;
                 }
-                double w = getWidth();
-                double h = getHeight();
-                double binWidth = (double) w / (double) ed.xbins;
+
                 if (selectedBaseControlPoint) {
                     ed.triangleWidget.baseIntensity = (short) (dragEnd.x / binWidth);
                 } else if (selectedRadiusControlPoint) {
                     ed.triangleWidget.radius = (dragEnd.x - (ed.triangleWidget.baseIntensity * binWidth))/(binWidth*ed.maxGradientMagnitude);
+                }
+                
+                else if(Low) {
+                    double newLowGradientMagnitude = ed.maxGradientMagnitude * (h - dragEnd.y) / h;
+                    if(newLowGradientMagnitude > ed.triangleWidget.graMax) {
+                        ed.triangleWidget.graMin = ed.triangleWidget.graMax;
+                        ed.triangleWidget.graMax = newLowGradientMagnitude;
+                    }
+                    else {
+                        ed.triangleWidget.graMin = newLowGradientMagnitude;
+                    }
+                    
+//                    System.out.println(ed.triangleWidget.lowGradientMagnitude);
+                }
+                else if(High) {
+                    double newUpGradientMagnitude = ed.maxGradientMagnitude * (h - dragEnd.y) / h;
+                    if(newUpGradientMagnitude < ed.triangleWidget.graMin) {
+                        ed.triangleWidget.graMax = ed.triangleWidget.graMin;
+                        ed.triangleWidget.graMin = newUpGradientMagnitude;
+                    }
+                    else {
+                        ed.triangleWidget.graMax = newUpGradientMagnitude;
+                    }
+//                    System.out.println(ed.triangleWidget.upGradientMagnitude);
                 }
                 ed.setSelectedInfo();
                 
@@ -144,12 +214,23 @@ public class TransferFunction2DView extends javax.swing.JPanel {
                 selectedRadiusControlPoint = false;
                 selectedBaseControlPoint = false;
             }
+            
+            if (Min_Control.contains(e.getPoint())) {
+                Low = true;
+            } else if (Max_Control.contains(e.getPoint())) {
+                High = true;
+            } else {
+                Low = false;
+                High = false;
+            }  
         }
         
         @Override
         public void mouseReleased(MouseEvent e) {
             selectedRadiusControlPoint = false;
             selectedBaseControlPoint = false;
+            Low = false;
+            High = false;
             ed.changed();
             repaint();
         }
