@@ -75,7 +75,7 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
         });
 
         buttonGroup1.add(compositingButton);
-        compositingButton.setText("Compositing（B2F）");
+        compositingButton.setText("Compositing（F2B）");
         compositingButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 compositingButtonActionPerformed(evt);

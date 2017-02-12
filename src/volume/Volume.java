@@ -85,16 +85,7 @@ public class Volume {
         double yd = coord[1]-(int) Math.floor(coord[1]);
         double zd = coord[2]-(int) Math.floor(coord[2]);
 
-        // for (int i =0;i<2;i++){
-        //     for (int j=0;j<2;j++){
-        //         for(int k=0;k<2;k++){
-        //             VectorMath.setVectorInt(vertexCoord[p], floor( coord[0] )+i, floor( coord[1] )+j, floor( coord[2] )+k);
-        //             
-        //             colorValues[p] = getVoxel( floor( coord[0] )+i,floor( coord[1] )+j,floor( coord[2] )+k);
-        //             p++;
-        //         }
-        //     }
-        // }
+    
         colorValues[0] = getVoxel( floor( coord[0] ),floor( coord[1] ),floor( coord[2] ));
         colorValues[1] = getVoxel( floor( coord[0] ),floor( coord[1] ),floor( coord[2] )+1);
         colorValues[2] = getVoxel( floor( coord[0] ),floor( coord[1] )+1,floor( coord[2] ));
@@ -116,7 +107,7 @@ public class Volume {
         
         if ( tempcolor[6] > 255 ){
             //System.err.println("err color:" + tempcolor[6]  );
-            tempcolor[6] = 255
+            tempcolor[6] = 255;
         }
         
         return (short) tempcolor[6];

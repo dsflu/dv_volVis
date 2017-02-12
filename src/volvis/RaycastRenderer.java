@@ -382,7 +382,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         
         int increment=1;
         if(this.interactiveMode){
-            increment = increment*3;
+            increment = increment*2;
         }
         //float sampleStep=1.0f;
         //tfEditor2D.triangleWidget.radius;
@@ -495,17 +495,22 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             for(int i = 0; i<3; i++){
                 current_point[i] = (current_dis/total_dis)*entry_exit_vector[i]+entryPoint[i];
             }
-            current_intensity = volume.getVoxelInterpolate(current_point);
+            if (this.interactiveMode){
+                current_intensity = volume.getVoxel((int)Math.floor(current_point[0]),(int)Math.floor(current_point[1]),(int)Math.floor(current_point[2]));
+            } else {
+                current_intensity = volume.getVoxelInterpolate(current_point);
+            }
+            
 
-                current_gradients= gradients.getGradient(current_point);
+            current_gradients= gradients.getGradient(current_point);
             basic_color.r = tFunc.getColor(current_intensity).r;
             basic_color.a = tFunc.getColor(current_intensity).a;
             basic_color.g = tFunc.getColor(current_intensity).g;
             basic_color.b = tFunc.getColor(current_intensity).b;
-            if(testii<1000){
-                System.out.println("com: "+basic_color.r);
-                testii++;
-            }
+            // if(testii<1000){
+            //     System.out.println("com: "+basic_color.r);
+            //     testii++;
+            // }
             if (shadingMode){
           basic_color = shading(current_gradients,basic_color,viewVec);
            } 
@@ -528,8 +533,11 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             aug_color.b += (1-aug_color.a) * basic_color.b *alpha;
             aug_color.a += (1-aug_color.a) * alpha;
         }
+        flag = false;
         return doublesToColor(1,aug_color.r,aug_color.g,aug_color.b);
     }
+
+
 private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] viewVec) {
             TFColor Amb_color = new TFColor();//Ia*Ka
             TFColor Dif_color = new TFColor();
@@ -582,16 +590,16 @@ private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] vie
             b_color.b = Amb_color.b+Dif_color.b+Spec_color.b;
             //b_color.a = 0.5;
 
-            if(testi<1000){
-                System.out.println("Viewv: "+VectorMath.length(viewVec)+","+VectorMath.length(R));
-                System.out.println("Imag: "+Ix+","+Iy+","+Iz+","+Imag);
-                System.out.println("cosd: "+cosd);
-                System.out.println("cosa: "+cosa);
-                System.out.println("a: "+Amb_color.r);
-                System.out.println("d: "+Dif_color.r);
-                System.out.println("s: "+Spec_color.r);
-                testi++;
-            }
+            // if(testi<1000){
+            //     System.out.println("Viewv: "+VectorMath.length(viewVec)+","+VectorMath.length(R));
+            //     System.out.println("Imag: "+Ix+","+Iy+","+Iz+","+Imag);
+            //     System.out.println("cosd: "+cosd);
+            //     System.out.println("cosa: "+cosa);
+            //     System.out.println("a: "+Amb_color.r);
+            //     System.out.println("d: "+Dif_color.r);
+            //     System.out.println("s: "+Spec_color.r);
+            //     testi++;
+            // }
             
             
     return b_color;
@@ -674,7 +682,7 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
             aug_color.a += (1-aug_color.a) * alpha;
         }
        
-        
+        flag = false;
         return doublesToColor(1,aug_color.r,aug_color.g,aug_color.b);
         
     }
@@ -725,9 +733,9 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
                 voxelColor.a = val > 0 ? 1.0 : 0.0;  // this makes intensity 0 completely transparent and the rest opaque
                 
                 // Alternatively, apply the transfer function to obtain a color
-                TFColor basic_color = new TFColor(); 
-                basic_color = tFunc.getColor(val);
-                voxelColor.r=basic_color.r;voxelColor.g=basic_color.g;voxelColor.b=basic_color.b;voxelColor.a=basic_color.a;
+                // TFColor basic_color = new TFColor(); 
+                // basic_color = tFunc.getColor(val);
+                // voxelColor.r=basic_color.r;voxelColor.g=basic_color.g;voxelColor.b=basic_color.b;voxelColor.a=basic_color.a;
                 
                 
                 // BufferedImage expects a pixel color packed as ARGB in an int
