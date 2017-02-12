@@ -82,22 +82,24 @@ public class Volume {
         int p = 0;
 
 
-        int x_f = floor( coord[0] );
+        int x_f = floor( coord[0] ); 
         int y_f = floor( coord[1] );
         int z_f = floor( coord[2] );
 
-        int x_u = x_f+1 > dimX ? x_f : x_f+1;
+        // if the point is at the dimX,dimY,dimZ boundary, the upper bound of x will be assigned to the same as the lower bound
+        int x_u = x_f+1 > dimX ? x_f : x_f+1; 
         int y_u = y_f+1 > dimY ? y_f : y_f+1;
         int z_u = z_f+1 > dimZ ? z_f : z_f+1;
 
-        double xd = coord[0]-x_f;
+        double xd = coord[0]-x_f; // interpolation factor t for the point(x,y,z)
         double yd = coord[1]-y_f;
         double zd = coord[2]-z_f;
         double xd2 = x_u-coord[0];
         double yd2 = y_u-coord[1];
         double zd2 = z_u-coord[2];
 
-        colorValues[0] = getVoxel( x_f,y_f,z_f);
+        //caculate the color of the eight voxels surrounding the point
+        colorValues[0] = getVoxel( x_f,y_f,z_f); 
         colorValues[1] = getVoxel( x_f,y_f,z_u);
         colorValues[2] = getVoxel( x_f,y_u,z_f);
         colorValues[3] = getVoxel( x_f,y_u,z_u);
@@ -106,6 +108,7 @@ public class Volume {
         colorValues[6] = getVoxel( x_u,y_u,z_f);
         colorValues[7] = getVoxel( x_u,y_u,z_u);
 
+        // 7 tri-linear interpolation prossess
         tempcolor[0] = colorValues[0]*zd2 + colorValues[1]*zd;
         tempcolor[1] = colorValues[2]*zd2 + colorValues[3]*zd;
         tempcolor[2] = tempcolor[0]*yd2 + tempcolor[1]*yd;
