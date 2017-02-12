@@ -45,8 +45,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     private boolean DifMode = false;
     private boolean SpecMode = false;
     private double sampleStep = 1.0;
-    int testi =1;
-    int testii =1;
+
     
     public RaycastRenderer() {
         panel = new RaycastRendererPanel(this);
@@ -277,6 +276,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         double[] current_point = new double[3];
         short max_intensity = 0;
         short current_intensity = 0;
+        if (this.interactiveMode){
+                sampleStep = sampleStep*5;
+        }
+
 
         VectorMath.setVector(entry_exit_vector, exitPoint[0]-entryPoint[0], exitPoint[1]-entryPoint[1], exitPoint[2]-entryPoint[2]);
         for (double current_dis = 0; current_dis < total_dis; current_dis += sampleStep){
@@ -284,16 +287,25 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 //current_point[i] = (1 - current_dis/total_dis) * entryPoint[i] + current_dis/total_dis * exitPoint[i];
                 current_point[i] = (current_dis/total_dis)*entry_exit_vector[i]+entryPoint[i];
             }
-            //VectorMath.setVector(current_point,(current_dis/total_dis)*entry_exit_vector[0]+entryPoint[0],(current_dis/total_dis)*entry_exit_vector[1]+entryPoint[1],(current_dis/total_dis)*entry_exit_vector[2]+entryPoint[2] );
-            current_intensity = volume.getVoxelInterpolate(current_point);
+            int floorx = (int)Math.floor(current_point[0]);
+            int floory = (int)Math.floor(current_point[1]);
+            int floorz = (int)Math.floor(current_point[2]);
+            if (this.interactiveMode){
+                current_intensity = volume.getVoxel(floorx,floory,floorz);
+
+            } else {
+                current_intensity = volume.getVoxelInterpolate(current_point);
+            }
+            //current_intensity = volume.getVoxelInterpolate(current_point);
             max_intensity = current_intensity > max_intensity ? current_intensity : max_intensity;
+            
         }
         current_intensity = volume.getVoxelInterpolate(exitPoint);
         max_intensity = current_intensity > max_intensity ? current_intensity : max_intensity;
-        //System.out.println("max: "+max_intensity);
+    
         int color=0;
 
-        color = (max_intensity << 24)| (255 << 8); 
+        color = (max_intensity << 24)| (255 << 8); //set the MIP color to green
         
         return color;
         
@@ -388,7 +400,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         //tfEditor2D.triangleWidget.radius;
         
 
-
         for (int j = 0; j < image.getHeight(); j++) {
             for (int i = 0; i < image.getWidth(); i++) {
                 image.setRGB(i, j, 0);
@@ -408,16 +419,14 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
                 computeEntryAndExit(pixelCoord, viewVec, entryPoint, exitPoint);
                 if ((entryPoint[0] > -1.0) && (exitPoint[0] > -1.0)) {
-                    //System.out.println("Entry: " + entryPoint[0] + " " + entryPoint[1] + " " + entryPoint[2]);
-                    //System.out.println("Exit: " + exitPoint[0] + " " + exitPoint[1] + " " + exitPoint[2]);
                     int pixelColor = 0;
                                    
                     /* set color to green if MipMode- see slicer function*/
-                   if(mipMode && !super.interactiveMode) 
+                   if(mipMode )//&& !super.interactiveMode) 
                         pixelColor= traceRayMIP(entryPoint,exitPoint,viewVec,sampleStep);
-                   if(compositingMode &&!super.interactiveMode)
+                   if(compositingMode)// &&!super.interactiveMode)
                        pixelColor = traceRayCompositingF2B(entryPoint,exitPoint,viewVec,sampleStep);
-                   if(tf2dMode &&!super.interactiveMode)
+                   if(tf2dMode )//&&!super.interactiveMode)
                            pixelColor = traceRaytf2d(entryPoint,exitPoint,viewVec,sampleStep);             
                     for (int ii = i; ii < i + increment; ii++) {
                         for (int jj = j; jj < j + increment; jj++) {
@@ -446,6 +455,9 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         aug_color.r = 0;
         aug_color.g = 0;
         aug_color.b = 0;
+        if (this.interactiveMode){
+                sampleStep = sampleStep*5;
+        }
 
         VectorMath.setVector(entry_exit_vector, exitPoint [0]-entryPoint[0], exitPoint[1]-entryPoint[1], exitPoint[2]-entryPoint[2]);
         for (double current_dis = total_dis; current_dis >0; current_dis -= sampleStep){
@@ -490,30 +502,37 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         aug_color.g = 0;
         aug_color.b = 0;
 
+        if (this.interactiveMode){
+                sampleStep = sampleStep*5;
+        }
+
         VectorMath.setVector(entry_exit_vector, exitPoint[0]-entryPoint[0], exitPoint[1]-entryPoint[1], exitPoint[2]-entryPoint[2]);
         for (double current_dis = 0; current_dis < total_dis && aug_color.a<0.95; current_dis += sampleStep){
             for(int i = 0; i<3; i++){
                 current_point[i] = (current_dis/total_dis)*entry_exit_vector[i]+entryPoint[i];
             }
+            int floorx = (int)Math.floor(current_point[0]);
+            int floory = (int)Math.floor(current_point[1]);
+            int floorz = (int)Math.floor(current_point[2]);
+            //current_intensity = volume.getVoxelInterpolate(current_point);
             if (this.interactiveMode){
-                current_intensity = volume.getVoxel((int)Math.floor(current_point[0]),(int)Math.floor(current_point[1]),(int)Math.floor(current_point[2]));
+                current_intensity = volume.getVoxel(floorx,floory,floorz);
+
             } else {
                 current_intensity = volume.getVoxelInterpolate(current_point);
             }
-            
 
             current_gradients= gradients.getGradient(current_point);
             basic_color.r = tFunc.getColor(current_intensity).r;
             basic_color.a = tFunc.getColor(current_intensity).a;
             basic_color.g = tFunc.getColor(current_intensity).g;
             basic_color.b = tFunc.getColor(current_intensity).b;
-            // if(testii<1000){
-            //     System.out.println("com: "+basic_color.r);
-            //     testii++;
-            // }
+
+            //add shading to change the basic_color
             if (shadingMode){
-          basic_color = shading(current_gradients,basic_color,viewVec);
-           } 
+                 basic_color = shading(current_gradients,basic_color,viewVec);
+            } 
+
             float alpha = (float) (1 - Math.pow(1-basic_color.a, sampleStep));
             aug_color.r += (1-aug_color.a) * basic_color.r *alpha;
             aug_color.g += (1-aug_color.a) * basic_color.g *alpha;
@@ -538,7 +557,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     }
 
 
-private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] viewVec) {
+    /**
+     * shading function 
+     */
+    private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] viewVec) {
             TFColor Amb_color = new TFColor();//Ia*Ka
             TFColor Dif_color = new TFColor();
             TFColor Spec_color = new TFColor();
@@ -547,28 +569,28 @@ private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] vie
             double k_s = 0.2;
             int n = 10;           
             double Ix = current_grad.x;
-            //System.out.println(viewVec[0]);
             double Iy = current_grad.y;
-           // System.out.println(Ix);
             double Iz = current_grad.z;
-            //double Imag = current_grad.mag;
             double Imag = (double) Math.sqrt(Ix*Ix + Iy*Iy + Iz*Iz);
             double Id[] = new double[3];//gradient
             double L[] = new double[3];//Light
             double R[] = new double[3];
-            if(Imag-0.0>0.0001){
+
+            //Imag cannot be 0
+            if(Imag-0.0>0.0001){ 
                 VectorMath.setVector(Id,Ix/Imag,Iy/Imag,Iz/Imag);
             } else {
                 VectorMath.setVector(Id,0,0,0);
             }
             
-            VectorMath.setVector(L,1.0/3.0,2.0/3.0,2.0/3.0);
-            //current_intensity = volume.getVoxelInterpolate(current_point);//current_point is used for Light direction
+            VectorMath.setVector(L,1.0/3.0,2.0/3.0,2.0/3.0); // set the Light vector
+
+            //users can choose the shading mode separately
             if(AmbMode == false){ k_a = 0.0;} else {k_a =0.1;}
-            if(DifMode == false){ k_d = 0.0;}else {k_d =0.7;}
-            if(SpecMode == false){ k_s = 0.0;}else {k_s =0.2;}
+            if(DifMode == false){ k_d = 0.0;} else {k_d =0.7;}
+            if(SpecMode == false){ k_s = 0.0;} else {k_s =0.2;}
+
             Amb_color.r=  b_color.r * k_a;
-            //System.out.println(Amb_color.r);
             Amb_color.g=  b_color.g * k_a;
             Amb_color.b=  b_color.b * k_a;
             
@@ -589,22 +611,14 @@ private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] vie
             b_color.g =Amb_color.g+Dif_color.g+Spec_color.g;
             b_color.b = Amb_color.b+Dif_color.b+Spec_color.b;
             //b_color.a = 0.5;
+            
+            return b_color;
+    }
 
-            // if(testi<1000){
-            //     System.out.println("Viewv: "+VectorMath.length(viewVec)+","+VectorMath.length(R));
-            //     System.out.println("Imag: "+Ix+","+Iy+","+Iz+","+Imag);
-            //     System.out.println("cosd: "+cosd);
-            //     System.out.println("cosa: "+cosa);
-            //     System.out.println("a: "+Amb_color.r);
-            //     System.out.println("d: "+Dif_color.r);
-            //     System.out.println("s: "+Spec_color.r);
-            //     testi++;
-            // }
-            
-            
-    return b_color;
-}
-private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVec,double sampleStep){
+    /**
+     * 2D transfer function 
+     */
+    private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVec,double sampleStep){
         double total_dis = VectorMath.distance(entryPoint, exitPoint);
         double entry_exit_vector[] = new double[3];
         double current_point[] = new double[3];
@@ -614,7 +628,6 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
         TFColor aug_color = new TFColor();
         TFColor set_color = new TFColor();
        
-//        TFColor gra_color = new TFColor();
         aug_color.a = 0;
         aug_color.r = 0;
         aug_color.g = 0;
@@ -626,48 +639,52 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
         set_color.a=tfEditor2D.triangleWidget.color.a;
         set_color.g=tfEditor2D.triangleWidget.color.g;
         set_color.b=tfEditor2D.triangleWidget.color.b;
+        VoxelGradient current_gradients=new VoxelGradient();
         double graMax = tfEditor2D.triangleWidget.graMax;
         double graMin = tfEditor2D.triangleWidget.graMin;
         VectorMath.setVector(entry_exit_vector, exitPoint[0]-entryPoint[0], exitPoint[1]-entryPoint[1], exitPoint[2]-entryPoint[2]);
-        for (double current_dis = 0; current_dis < total_dis && aug_color.a<0.95; current_dis += sampleStep){
-       // for (double current_dis = 0; current_dis < total_dis; current_dis += sampleStep){
 
+        if (this.interactiveMode){
+                sampleStep = sampleStep*5;
+        }
+        for (double current_dis = 0; current_dis < total_dis && aug_color.a<0.95; current_dis += sampleStep){
             for(int i = 0; i<3; i++){
                 current_point[i] = (current_dis/total_dis)*entry_exit_vector[i]+entryPoint[i];
             }
-            current_intensity = volume.getVoxelInterpolate(current_point);
-            //System.out.println(+current_intensity);
-            //basic_color = tFunc.getColor(current_intensity);
-            //if (tf2dMode == false){
-                VoxelGradient current_gradients=new VoxelGradient();
-                current_gradients= gradients.getGradient(current_point);//,getGradient(x,y,z+1), (float) (coord[2]-z),result_z1);               
-  
-        
-        //current_gradients= gradients.getGradient(current_point);               
+            int floorx = (int)Math.floor(current_point[0]);
+            int floory = (int)Math.floor(current_point[1]);
+            int floorz = (int)Math.floor(current_point[2]);
+            if (this.interactiveMode){
+                current_intensity = volume.getVoxel(floorx,floory,floorz);
+
+            } else {
+                current_intensity = volume.getVoxelInterpolate(current_point);
+            }
+            //current_intensity = volume.getVoxelInterpolate(current_point);
+            current_gradients= gradients.getGradient(current_point);                  
                 
-                if (current_gradients.mag==0&&current_intensity==fv){
+            if (current_gradients.mag==0&&current_intensity==fv){
                 basic_color.a = 1;
-                }
-                    else if (current_gradients.mag>0 && current_intensity-r*current_gradients.mag<=fv 
-                    && current_intensity+r*current_gradients.mag>=fv){
-                    basic_color.a = 1-1/r*Math.abs(fv-current_intensity)/current_gradients.mag;                      
-                    }
-                        else{
-                        basic_color.a=0;
-                        }
-                    basic_color.a=basic_color.a * set_color.a;
-                    basic_color.r=set_color.r;
-                    basic_color.g=set_color.g;
-                    basic_color.b=set_color.b;
+            } else if (current_gradients.mag>0 && current_intensity-r*current_gradients.mag<=fv && current_intensity+r*current_gradients.mag>=fv){
+                basic_color.a = 1-1/r*Math.abs(fv-current_intensity)/current_gradients.mag;                      
+            } else{
+                basic_color.a=0;
+            }
 
             if (current_gradients.mag>graMax || current_gradients.mag<graMin){
                 basic_color.a = 0;
             }
-            //gradients= 0//;(current_point));
-        if (shadingMode){
-          basic_color = shading(current_gradients,basic_color,viewVec);
-           }   
-            
+
+            basic_color.a=basic_color.a * set_color.a; // multiply the av in the equation
+            basic_color.r=set_color.r;                
+            basic_color.g=set_color.g;
+            basic_color.b=set_color.b;
+
+            if (shadingMode){
+                basic_color = shading(current_gradients,basic_color,viewVec);
+            } 
+
+            //do the F2B compositing
             float alpha = (float) (1 - Math.pow(1-basic_color.a, sampleStep));
             aug_color.r += (1-aug_color.a) * basic_color.r *alpha;
             aug_color.g += (1-aug_color.a) * basic_color.g *alpha;
@@ -689,7 +706,6 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
         }
        
         flag = false;
-        //if ()
         return doublesToColor(1,aug_color.r,aug_color.g,aug_color.b);
         
     }

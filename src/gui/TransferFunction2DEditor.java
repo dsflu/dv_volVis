@@ -189,8 +189,6 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
             }
         });
 
-        radiusLabel1.setEditable(false);
-        radiusLabel1.setText("jTextField3");
         radiusLabel1.setMinimumSize(new java.awt.Dimension(84, 28));
         radiusLabel1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -200,8 +198,6 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
 
         jLabel8.setText("Min Mag");
 
-        radiusLabel2.setEditable(false);
-        radiusLabel2.setText("jTextField3");
         radiusLabel2.setMinimumSize(new java.awt.Dimension(84, 28));
         radiusLabel2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

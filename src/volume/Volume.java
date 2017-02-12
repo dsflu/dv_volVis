@@ -59,7 +59,7 @@ public class Volume {
      * @return int floor value
      */
     private static int floor( double value ){
-        return (int) (value);
+        return (int) Math.floor(value);
     }
     
     public short getVoxelInterpolate(double[] coord) {
@@ -81,29 +81,41 @@ public class Volume {
         double tempcolor[] = new double[7];
         int p = 0;
 
-        double xd = coord[0]-(int) Math.floor(coord[0]);
-        double yd = coord[1]-(int) Math.floor(coord[1]);
-        double zd = coord[2]-(int) Math.floor(coord[2]);
 
-    
-        colorValues[0] = getVoxel( floor( coord[0] ),floor( coord[1] ),floor( coord[2] ));
-        colorValues[1] = getVoxel( floor( coord[0] ),floor( coord[1] ),floor( coord[2] )+1);
-        colorValues[2] = getVoxel( floor( coord[0] ),floor( coord[1] )+1,floor( coord[2] ));
-        colorValues[3] = getVoxel( floor( coord[0] ),floor( coord[1] )+1,floor( coord[2] )+1);
-        colorValues[4] = getVoxel( floor( coord[0] )+1,floor( coord[1] ),floor( coord[2] ));
-        colorValues[5] = getVoxel( floor( coord[0] )+1,floor( coord[1] ),floor( coord[2] )+1);
-        colorValues[6] = getVoxel( floor( coord[0] )+1,floor( coord[1] )+1,floor( coord[2] ));
-        colorValues[7] = getVoxel( floor( coord[0] )+1,floor( coord[1] )+1,floor( coord[2] )+1);
+        int x_f = floor( coord[0] );
+        int y_f = floor( coord[1] );
+        int z_f = floor( coord[2] );
 
-        tempcolor[0] = colorValues[0]*zd + colorValues[1]*(1-zd);
-        tempcolor[1] = colorValues[2]*zd + colorValues[3]*(1-zd);
-        tempcolor[2] = tempcolor[0]*yd + tempcolor[1]*(1-yd);
+        int x_u = x_f+1 > dimX ? x_f : x_f+1;
+        int y_u = y_f+1 > dimY ? y_f : y_f+1;
+        int z_u = z_f+1 > dimZ ? z_f : z_f+1;
 
-        tempcolor[3] = colorValues[4]*zd + colorValues[5]*(1-zd);
-        tempcolor[4] = colorValues[6]*zd + colorValues[7]*(1-zd);
-        tempcolor[5] = tempcolor[3]*yd + tempcolor[4]*(1-yd);
+        double xd = coord[0]-x_f;
+        double yd = coord[1]-y_f;
+        double zd = coord[2]-z_f;
+        double xd2 = x_u-coord[0];
+        double yd2 = y_u-coord[1];
+        double zd2 = z_u-coord[2];
 
-        tempcolor[6] =tempcolor[2]*xd+tempcolor[5]*(1-xd);
+        colorValues[0] = getVoxel( x_f,y_f,z_f);
+        colorValues[1] = getVoxel( x_f,y_f,z_u);
+        colorValues[2] = getVoxel( x_f,y_u,z_f);
+        colorValues[3] = getVoxel( x_f,y_u,z_u);
+        colorValues[4] = getVoxel( x_u,y_f,z_f);
+        colorValues[5] = getVoxel( x_u,y_f,z_u);
+        colorValues[6] = getVoxel( x_u,y_u,z_f);
+        colorValues[7] = getVoxel( x_u,y_u,z_u);
+
+        tempcolor[0] = colorValues[0]*zd2 + colorValues[1]*zd;
+        tempcolor[1] = colorValues[2]*zd2 + colorValues[3]*zd;
+        tempcolor[2] = tempcolor[0]*yd2 + tempcolor[1]*yd;
+
+        tempcolor[3] = colorValues[4]*zd2 + colorValues[5]*zd;
+        tempcolor[4] = colorValues[6]*zd2 + colorValues[7]*zd;
+        tempcolor[5] = tempcolor[3]*yd2 + tempcolor[4]*yd;
+
+        tempcolor[6] =tempcolor[2]*xd2+tempcolor[5]*xd;
+        tempcolor[6] = (short) Math.round(tempcolor[6]);
         
         if ( tempcolor[6] > 255 ){
             //System.err.println("err color:" + tempcolor[6]  );
