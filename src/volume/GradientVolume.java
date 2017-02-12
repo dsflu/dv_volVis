@@ -40,11 +40,11 @@ public class GradientVolume {
     private void interpolate(VoxelGradient g0, VoxelGradient g1, float factor, VoxelGradient result) {
         /* To be implemented: this function linearly interpolates gradient vector g0 and g1 given the factor (t) 
             the resut is given at result. You can use it to tri-linearly interpolate the gradient */
-        result.mag=g0.mag*(1-factor)+g1.mag*factor;
+        //result.mag=g0.mag*(1-factor)+g1.mag*factor;
        result.x=g0.x*(1-factor)+g1.x*factor;
        result.y=g0.y*(1-factor)+g1.y*factor;
        result.z=g0.z*(1-factor)+g1.z*factor;
-        //result.mag = (float)Math.sqrt(result.x*result.x + result.y*result.y + result.z*result.z);
+        result.mag = (float)Math.sqrt(result.x*result.x + result.y*result.y + result.z*result.z);
     }
     
     public VoxelGradient getGradientNN(double[] coord) {
