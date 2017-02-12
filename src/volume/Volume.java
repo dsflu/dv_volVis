@@ -116,7 +116,7 @@ public class Volume {
         
         if ( tempcolor[6] > 255 ){
             //System.err.println("err color:" + tempcolor[6]  );
-            tempcolor[6] = 255
+            tempcolor[6] = 255;
         }
         
         return (short) tempcolor[6];

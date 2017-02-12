@@ -502,10 +502,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             basic_color.a = tFunc.getColor(current_intensity).a;
             basic_color.g = tFunc.getColor(current_intensity).g;
             basic_color.b = tFunc.getColor(current_intensity).b;
-            if(testii<1000){
-                System.out.println("com: "+basic_color.r);
-                testii++;
-            }
+            // if(testii<1000){
+            //     System.out.println("com: "+basic_color.r);
+            //     testii++;
+            // }
             if (shadingMode){
           basic_color = shading(current_gradients,basic_color,viewVec);
            } 
@@ -528,6 +528,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             aug_color.b += (1-aug_color.a) * basic_color.b *alpha;
             aug_color.a += (1-aug_color.a) * alpha;
         }
+        flag = false;
         return doublesToColor(1,aug_color.r,aug_color.g,aug_color.b);
     }
 private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] viewVec) {
@@ -582,16 +583,16 @@ private TFColor shading(VoxelGradient current_grad, TFColor b_color,double[] vie
             b_color.b = Amb_color.b+Dif_color.b+Spec_color.b;
             //b_color.a = 0.5;
 
-            if(testi<1000){
-                System.out.println("Viewv: "+VectorMath.length(viewVec)+","+VectorMath.length(R));
-                System.out.println("Imag: "+Ix+","+Iy+","+Iz+","+Imag);
-                System.out.println("cosd: "+cosd);
-                System.out.println("cosa: "+cosa);
-                System.out.println("a: "+Amb_color.r);
-                System.out.println("d: "+Dif_color.r);
-                System.out.println("s: "+Spec_color.r);
-                testi++;
-            }
+            // if(testi<1000){
+            //     System.out.println("Viewv: "+VectorMath.length(viewVec)+","+VectorMath.length(R));
+            //     System.out.println("Imag: "+Ix+","+Iy+","+Iz+","+Imag);
+            //     System.out.println("cosd: "+cosd);
+            //     System.out.println("cosa: "+cosa);
+            //     System.out.println("a: "+Amb_color.r);
+            //     System.out.println("d: "+Dif_color.r);
+            //     System.out.println("s: "+Spec_color.r);
+            //     testi++;
+            // }
             
             
     return b_color;
@@ -674,7 +675,7 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
             aug_color.a += (1-aug_color.a) * alpha;
         }
        
-        
+        flag = false;
         return doublesToColor(1,aug_color.r,aug_color.g,aug_color.b);
         
     }
