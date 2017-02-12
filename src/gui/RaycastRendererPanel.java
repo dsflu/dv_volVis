@@ -47,6 +47,11 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
         compositingButton = new javax.swing.JRadioButton();
         tf2dButton = new javax.swing.JRadioButton();
         shadingCheckbox = new javax.swing.JCheckBox();
+        shadingCheckbox1 = new javax.swing.JCheckBox();
+        shadingCheckbox2 = new javax.swing.JCheckBox();
+        shadingCheckbox3 = new javax.swing.JCheckBox();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
 
         jLabel1.setText("Rendering time (ms):");
 
@@ -70,7 +75,7 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
         });
 
         buttonGroup1.add(compositingButton);
-        compositingButton.setText("Compositing");
+        compositingButton.setText("Compositing（B2F）");
         compositingButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 compositingButtonActionPerformed(evt);
@@ -92,24 +97,63 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
             }
         });
 
+        shadingCheckbox1.setText("Diffuse");
+        shadingCheckbox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shadingCheckbox1ActionPerformed(evt);
+            }
+        });
+
+        shadingCheckbox2.setText("Ambient");
+        shadingCheckbox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shadingCheckbox2ActionPerformed(evt);
+            }
+        });
+
+        shadingCheckbox3.setText("Specular");
+        shadingCheckbox3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shadingCheckbox3ActionPerformed(evt);
+            }
+        });
+
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Sample Step");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(renderingSpeedLabel))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(compositingButton)
-                        .addComponent(tf2dButton)
-                        .addComponent(mipButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(compositingButton, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tf2dButton, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(mipButton, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(slicerButton)
-                        .addComponent(shadingCheckbox)))
-                .addContainerGap(339, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(shadingCheckbox, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(shadingCheckbox2)
+                        .addGap(18, 18, 18)
+                        .addComponent(shadingCheckbox1)
+                        .addGap(18, 18, 18)
+                        .addComponent(shadingCheckbox3))
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(renderingSpeedLabel)
+                .addContainerGap(199, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -119,16 +163,24 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
                     .addComponent(jLabel1)
                     .addComponent(renderingSpeedLabel))
                 .addGap(49, 49, 49)
-                .addComponent(slicerButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(slicerButton)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(mipButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(compositingButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tf2dButton)
-                .addGap(18, 18, 18)
+                .addGap(23, 23, 23)
                 .addComponent(shadingCheckbox)
-                .addContainerGap(137, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(shadingCheckbox3)
+                    .addComponent(shadingCheckbox1)
+                    .addComponent(shadingCheckbox2))
+                .addContainerGap(106, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -152,13 +204,41 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
         renderer.setShadingMode(shadingCheckbox.isSelected());
     }//GEN-LAST:event_shadingCheckboxActionPerformed
 
+    private void shadingCheckbox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shadingCheckbox1ActionPerformed
+        renderer.setDifMode(shadingCheckbox1.isSelected());        // TODO add your handling code here:
+    }//GEN-LAST:event_shadingCheckbox1ActionPerformed
+
+    private void shadingCheckbox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shadingCheckbox2ActionPerformed
+        renderer.setAmbMode(shadingCheckbox2.isSelected());        // TODO add your handling code here:
+    }//GEN-LAST:event_shadingCheckbox2ActionPerformed
+
+    private void shadingCheckbox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shadingCheckbox3ActionPerformed
+        renderer.setSpecMode(shadingCheckbox3.isSelected());  // TODO add your handling code here:
+    }//GEN-LAST:event_shadingCheckbox3ActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+   double value = Double.parseDouble(jTextField1.getText());
+            if (value < 0) {
+                value = 0;         
+            } 
+         renderer.setsampleStep(value);// TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+//    private javax.swing.JCheckBox AmbCheckbox;
+//    private javax.swing.JCheckBox DifCheckbox;
+//    private javax.swing.JCheckBox SpecCheckbox;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JRadioButton compositingButton;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JRadioButton mipButton;
     private javax.swing.JLabel renderingSpeedLabel;
     private javax.swing.JCheckBox shadingCheckbox;
+    private javax.swing.JCheckBox shadingCheckbox1;
+    private javax.swing.JCheckBox shadingCheckbox2;
+    private javax.swing.JCheckBox shadingCheckbox3;
     private javax.swing.JRadioButton slicerButton;
     private javax.swing.JRadioButton tf2dButton;
     // End of variables declaration//GEN-END:variables

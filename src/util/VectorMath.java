@@ -16,11 +16,6 @@ public class VectorMath {
         v[1] = c1;
         v[2] = c2;
     }
-    public static void setVectorInt(int[] v, int c0, int c1, int c2) {
-        v[0] = c0;
-        v[1] = c1;
-        v[2] = c2;
-    }
 
     // compute dotproduct of vectors v and w
     public static double dotproduct(double[] v, double[] w) {
@@ -50,15 +45,6 @@ public class VectorMath {
     public static double length(double[] v) {
         return Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     }
-
-    public static int[] Integer(double[] v) {
-        int[] r = new int[3];
-        r[0] = (int) v[0];
-        r[1] = (int) v[1];
-        r[2] = (int) v[2];
-        return r;
-    }
-    
     
 
 }

@@ -41,6 +41,7 @@ public class Volume {
     
     public short getVoxel(int x, int y, int z) {
         return data[x + dimX*(y + dimY * z)];
+       
     }
     
     public void setVoxel(int x, int y, int z, short value) {
@@ -65,8 +66,8 @@ public class Volume {
     /* to be implemented: get the trilinear interpolated value. 
         The current implementation gets the Nearest Neightbour */
         
-        if (coord[0] < 0 || coord[0] > (dimX-1) || coord[1] < 0 || coord[1] > (dimY-1)
-                || coord[2] < 0 || coord[2] > (dimZ-1)) {
+        if (coord[0] < 0 || coord[0] > (dimX-2) || coord[1] < 0 || coord[1] > (dimY-2)
+                || coord[2] < 0 || coord[2] > (dimZ-2)) {
             return 0;
         }
         /* notice that in this framework we assume that the distance between neighbouring voxels is 1 in all directions*/
@@ -114,7 +115,8 @@ public class Volume {
         tempcolor[6] =tempcolor[2]*xd+tempcolor[5]*(1-xd);
         
         if ( tempcolor[6] > 255 ){
-            System.err.println("err color:" + tempcolor[6]  );
+            //System.err.println("err color:" + tempcolor[6]  );
+            tempcolor[6] = 255
         }
         
         return (short) tempcolor[6];

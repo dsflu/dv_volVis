@@ -65,7 +65,7 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
 
     private void compute2Dhistogram() {
       /* to be implemented: for the 2D histogram and the implementation of the 2D transfer functions */
-        maxIntensity = vol.getMaximum();
+        maxIntensity =  vol.getMaximum();
         maxGradientMagnitude = gradvol.getMaxGradientMagnitude();
 
         System.out.println("maxIntensity = " + maxIntensity);
@@ -153,7 +153,6 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
 
         jLabel6.setText("Color");
 
-        colorButton.setBounds(new java.awt.Rectangle(0, 0, 75, 29));
         colorButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 colorButtonActionPerformed(evt);
@@ -163,7 +162,6 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
         jLabel7.setText("Radius");
 
         opacityLabel.setText("jTextField2");
-        opacityLabel.setMinimumSize(new java.awt.Dimension(84, 28));
         opacityLabel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 opacityLabelActionPerformed(evt);
@@ -172,11 +170,19 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
 
         intensityLabel.setEditable(false);
         intensityLabel.setText("jTextField1");
-        intensityLabel.setMinimumSize(new java.awt.Dimension(84, 28));
+        intensityLabel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                intensityLabelActionPerformed(evt);
+            }
+        });
 
         radiusLabel.setEditable(false);
         radiusLabel.setText("jTextField3");
-        radiusLabel.setMinimumSize(new java.awt.Dimension(84, 28));
+        radiusLabel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radiusLabelActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -286,6 +292,14 @@ public class TransferFunction2DEditor extends javax.swing.JPanel {
         setSelectedInfo();
         changed();
     }//GEN-LAST:event_opacityLabelActionPerformed
+
+    private void intensityLabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_intensityLabelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_intensityLabelActionPerformed
+
+    private void radiusLabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radiusLabelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_radiusLabelActionPerformed
 
     public class TriangleWidget {
 
