@@ -626,6 +626,8 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
         set_color.a=tfEditor2D.triangleWidget.color.a;
         set_color.g=tfEditor2D.triangleWidget.color.g;
         set_color.b=tfEditor2D.triangleWidget.color.b;
+        double graMax = tfEditor2D.triangleWidget.graMax;
+        double graMin = tfEditor2D.triangleWidget.graMin;
         VectorMath.setVector(entry_exit_vector, exitPoint[0]-entryPoint[0], exitPoint[1]-entryPoint[1], exitPoint[2]-entryPoint[2]);
         for (double current_dis = 0; current_dis < total_dis && aug_color.a<0.95; current_dis += sampleStep){
        // for (double current_dis = 0; current_dis < total_dis; current_dis += sampleStep){
@@ -657,6 +659,10 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
                     basic_color.r=set_color.r;
                     basic_color.g=set_color.g;
                     basic_color.b=set_color.b;
+
+            if (current_gradients.mag>graMax || current_gradients.mag<graMin){
+                basic_color.a = 0;
+            }
             //gradients= 0//;(current_point));
         if (shadingMode){
           basic_color = shading(current_gradients,basic_color,viewVec);
@@ -683,6 +689,7 @@ private int traceRaytf2d(double[] entryPoint, double[]exitPoint, double[] viewVe
         }
        
         flag = false;
+        //if ()
         return doublesToColor(1,aug_color.r,aug_color.g,aug_color.b);
         
     }
